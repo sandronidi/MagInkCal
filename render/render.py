@@ -176,28 +176,48 @@ class RenderHelper:
                 cal_events_text += '<li><div class="date text-muted">' + str(dayOfMonth) + '</div>\n'
             else:
                 cal_events_text += '<li><div class="date">' + str(dayOfMonth) + '</div>\n'
-
-            for j in range(min(len(calList[i]), maxEventsPerDay)):
-                event = calList[i][j]
-                cal_events_text += '<div class="event'
-                if event['isUpdated']:
-                    cal_events_text += ' text-danger'
-                elif currDate.month != calDict['referenceDay'].month:
-                    cal_events_text += ' text-muted'
-                if event['isMultiday']:
-                    if event['startDatetime'].date() == currDate:
-                        cal_events_text += '">►' + event['summary']
+            
+            if len(calList[i]) <= maxEventsPerDay:
+                for j in range(min(len(calList[i]), maxEventsPerDay)):
+                    event = calList[i][j]
+                    cal_events_text += '<div class="event'
+                    if event['isUpdated']:
+                        cal_events_text += ' text-danger'
+                    elif currDate.month != calDict['referenceDay'].month:
+                        cal_events_text += ' text-muted'
+                    if event['isMultiday']:
+                        if event['startDatetime'].date() == currDate:
+                            cal_events_text += '">►' + event['summary']
+                        else:
+                            # calHtmlList.append(' text-multiday">')
+                            cal_events_text += '">◄' + event['summary']
+                    elif event['allday']:
+                        cal_events_text += '">' + event['summary']
                     else:
-                        # calHtmlList.append(' text-multiday">')
-                        cal_events_text += '">◄' + event['summary']
-                elif event['allday']:
-                    cal_events_text += '">' + event['summary']
-                else:
-                    cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
-                        'summary']
-                cal_events_text += '</div>\n'
-            if len(calList[i]) > maxEventsPerDay:
-                cal_events_text += '<div class="event text-muted">' + str(len(calList[i]) - maxEventsPerDay) + ' more'
+                        cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
+                            'summary']
+                    cal_events_text += '</div>\n'
+            elif len(calList[i]) > maxEventsPerDay:
+                for j in range(min(len(calList[i]), maxEventsPerDay - 1)):
+                    event = calList[i][j]
+                    cal_events_text += '<div class="event'
+                    if event['isUpdated']:
+                        cal_events_text += ' text-danger'
+                    elif currDate.month != calDict['referenceDay'].month:
+                        cal_events_text += ' text-muted'
+                    if event['isMultiday']:
+                        if event['startDatetime'].date() == currDate:
+                            cal_events_text += '">►' + event['summary']
+                        else:
+                            # calHtmlList.append(' text-multiday">')
+                            cal_events_text += '">◄' + event['summary']
+                    elif event['allday']:
+                        cal_events_text += '">' + event['summary']
+                    else:
+                        cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
+                            'summary']
+                    cal_events_text += '</div>\n'
+                cal_events_text += '<div class="event text-muted">' + str(len(calList[i]) - (maxEventsPerDay - 1)) + ' more'
 
             cal_events_text += '</li>\n'
 
