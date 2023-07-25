@@ -47,6 +47,8 @@ def setCalStartEndTime(date, range, startToday, weekStartDay):
             days_until_week_start = (weekStartDay - first_of_month.weekday()) % 7
             StartDate = first_of_month - dt.timedelta(days=(7 - days_until_week_start))
             days_until_week_end = (weekStartDay - last_of_month.weekday()) % 7
+            if days_until_week_end == 0:
+                days_until_week_end = 7
             EndDate = last_of_month + dt.timedelta(days=days_until_week_end - 1)
             days = (EndDate - StartDate).days  + 1
             return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
@@ -101,7 +103,7 @@ def main():
         logger.info("Time synchronised to {}".format(currDatetime))
         currDate = currDatetime.date()
         #calRange = setCalStartEndTime(currDate, defaultView, weekStartToday, weekStartDay)
-        date = currDate.replace(month=currDate.month + 2)
+        date = currDate.replace(month=currDate.month)
         calRange = setCalStartEndTime(date, "month", False , weekStartDay)
         calStartDatetime = displayTZ.localize(dt.datetime.combine(calRange['StartDate'], dt.datetime.min.time()))
         calEndDatetime = displayTZ.localize(dt.datetime.combine(calRange['EndDate'], dt.datetime.max.time()))
