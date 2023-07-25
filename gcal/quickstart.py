@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Run this script first to obtain the token. Credentials.json must be in the same folder first.
+Run this script first to obtain the gcal/token. Credentials.json must be in the same folder first.
 To obtain Credentials.json, follow the instructions listed in the following link.
 https://developers.google.com/calendar/api/quickstart/python
 """
@@ -14,7 +14,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
-# If modifying these scopes, delete the file token.pickle.
+# If modifying these scopes, delete the file gcal/token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 
@@ -23,11 +23,11 @@ def main():
     Prints the start and name of the next 10 events on the user's calendar.
     """
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
+    # The file gcal/token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
+    if os.path.exists('gcal/token.pickle'):
+        with open('gcal/token.pickle', 'rb') as token:
             creds = pickle.load(token)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
@@ -35,10 +35,10 @@ def main():
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                'gcal/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
+        with open('gcal/token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
     service = build('calendar', 'v3', credentials=creds)
