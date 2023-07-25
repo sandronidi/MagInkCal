@@ -9,6 +9,7 @@ There will also be work needed to adjust the calendar rendering for different sc
 CSS stylesheets in the "render" folder.
 """
 import datetime as dt
+import locale
 import sys
 
 from pytz import timezone
@@ -19,16 +20,51 @@ import json
 import logging
 
 
+def setCalStartEndTime(date, range, startToday, weekStartDay):
+    if startToday:
+        if range == "week":
+            StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
+            EndDate = StartDate + dt.timedelta(days=(6))
+            days = (EndDate - StartDate).days  + 1
+            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+        elif range == "month":
+            StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
+            EndDate = StartDate + dt.timedelta(days=(5 * 7 - 1))
+            days = (EndDate - StartDate).days  + 1
+            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+        else:
+            return
+    else:
+        if range == "week":
+            days_until_week_start = (date.weekday()- weekStartDay) % 7
+            StartDate = date - dt.timedelta(days=(0 + days_until_week_start))
+            EndDate = StartDate + dt.timedelta(days=(6))
+            days = (EndDate - StartDate).days  + 1
+            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+        elif range == "month":
+            first_of_month = date.replace(day=1)
+            last_of_month = date.replace(day=1, month=date.month + 1) - dt.timedelta(days=1)
+            days_until_week_start = (weekStartDay - first_of_month.weekday()) % 7
+            StartDate = first_of_month - dt.timedelta(days=(7 - days_until_week_start))
+            days_until_week_end = (weekStartDay - last_of_month.weekday()) % 7
+            EndDate = last_of_month + dt.timedelta(days=days_until_week_end - 1)
+            days = (EndDate - StartDate).days  + 1
+            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+        else:
+            return
+
 def main():
     # Basic configuration settings (user replaceable)
     configFile = open('config.json')
     config = json.load(configFile)
 
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
+    #locale.setlocale(locale.LC_ALL, config['displayLanguage']) #local code for language (https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html)
     thresholdHours = config['thresholdHours']  # considers events updated within last 12 hours as recently updated
     maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more')
     isDisplayToScreen = config['isDisplayToScreen']  # set to true when debugging rendering without displaying to screen
     isShutdownOnComplete = config['isShutdownOnComplete']  # set to true to conserve power, false if in debugging mode
+    piSugar2Present = config['piSugar2Present'] # is PiSugar2 in the Setup available or is Power direct attached
     batteryDisplayMode = config['batteryDisplayMode']  # 0: do not show / 1: always show / 2: show when battery is low
     weekStartDay = config['weekStartDay']  # Monday = 0, Sunday = 6
     dayOfWeekText = config['dayOfWeekText'] # Monday as first item in list
@@ -39,6 +75,9 @@ def main():
     rotateAngle = config['rotateAngle']  # If image is rendered in portrait orientation, angle to rotate to fit screen
     calendars = config['calendars']  # Google calendar ids
     is24hour = config['is24h']  # set 24 hour time
+    defaultView = config['defaultView'] # Default View ["week" or "month"]
+    weekStartToday = config['weekStartToday'] # Week view Start today or on weekStartDay
+    monthStartToday = config['monthStartToday'] # Month view Start today or first day of month
 
     # Create and configure logger
     logging.basicConfig(filename="logfile.log", format='%(asctime)s %(levelname)s - %(message)s', filemode='a')
@@ -52,6 +91,7 @@ def main():
         # Note: For Python datetime.weekday() - Monday = 0, Sunday = 6
         # For this implementation, each week starts on a Sunday and the calendar begins on the nearest elapsed Sunday
         # The calendar will also display 5 weeks of events to cover the upcoming month, ending on a Saturday
+        #if piSugar2Present:
         powerService = PowerHelper()
         powerService.sync_time()
         currBatteryLevel = powerService.get_battery()
@@ -60,22 +100,24 @@ def main():
         currDatetime = dt.datetime.now(displayTZ)
         logger.info("Time synchronised to {}".format(currDatetime))
         currDate = currDatetime.date()
-        calStartDate = currDate - dt.timedelta(days=((currDate.weekday() + (7 - weekStartDay)) % 7))
-        calEndDate = calStartDate + dt.timedelta(days=(5 * 7 - 1))
-        calStartDatetime = displayTZ.localize(dt.datetime.combine(calStartDate, dt.datetime.min.time()))
-        calEndDatetime = displayTZ.localize(dt.datetime.combine(calEndDate, dt.datetime.max.time()))
+        #calRange = setCalStartEndTime(currDate, defaultView, weekStartToday, weekStartDay)
+        date = currDate.replace(month=currDate.month + 2)
+        calRange = setCalStartEndTime(date, "month", False , weekStartDay)
+        calStartDatetime = displayTZ.localize(dt.datetime.combine(calRange['StartDate'], dt.datetime.min.time()))
+        calEndDatetime = displayTZ.localize(dt.datetime.combine(calRange['EndDate'], dt.datetime.max.time()))
 
         # Using Google Calendar to retrieve all events within start and end date (inclusive)
         start = dt.datetime.now()
         gcalService = GcalHelper()
         eventList = gcalService.retrieve_events(calendars, calStartDatetime, calEndDatetime, displayTZ, thresholdHours)
+        #eventList = []
         logger.info("Calendar events retrieved in " + str(dt.datetime.now() - start))
 
         # Populate dictionary with information to be rendered on e-ink display
-        calDict = {'events': eventList, 'calStartDate': calStartDate, 'today': currDate, 'lastRefresh': currDatetime,
+        calDict = {'events': eventList, 'calStartDate': calRange['StartDate'], 'today': currDate, 'lastRefresh': currDatetime,
                    'batteryLevel': currBatteryLevel, 'batteryDisplayMode': batteryDisplayMode,
                    'dayOfWeekText': dayOfWeekText, 'weekStartDay': weekStartDay, 'maxEventsPerDay': maxEventsPerDay,
-                   'is24hour': is24hour}
+                   'is24hour': is24hour, 'calRange': calRange['Range'], 'referenceDay': date}
 
         renderService = RenderHelper(imageWidth, imageHeight, rotateAngle)
         calBlackImage, calRedImage = renderService.process_inputs(calDict)

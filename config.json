@@ -1,18 +1,23 @@
 {
-  "displayTZ": "Asia/Hong_Kong",
+  "displayTZ": "Europe/Zurich",
+  "displayLanguage": "de_DE.UTF-8",
   "thresholdHours": 24,
   "maxEventsPerDay": 3,
   "isDisplayToScreen": false,
   "isShutdownOnComplete": false,
-  "batteryDisplayMode": 1,
-  "weekStartDay": 6,
-  "dayOfWeekText": ["M", "T", "W", "T", "F", "S", "S"],
+  "piSugar2Present":false,
+  "batteryDisplayMode": 0,
+  "weekStartDay": 0,
+  "dayOfWeekText": ["M", "D", "M", "D", "F", "S", "S"],
   "screenWidth": 1304,
   "screenHeight": 984,
   "imageWidth": 984,
   "imageHeight": 1304,
   "rotateAngle": 270,
-  "is24h": false,
+  "is24h": true,
+  "defaultView": "week",
+  "weekStartToday": false,
+  "monthStartToday": false,
   "calendars": [
     "primary"
   ]

@@ -19,6 +19,7 @@ from datetime import timedelta
 import pathlib
 from PIL import Image
 import logging
+import calendar
 
 
 class RenderHelper:
@@ -108,7 +109,7 @@ class RenderHelper:
         # calDict = {'events': eventList, 'calStartDate': calStartDate, 'today': currDate, 'lastRefresh': currDatetime, 'batteryLevel': batteryLevel}
         # first setup list to represent the 5 weeks in our calendar
         calList = []
-        for i in range(35):
+        for i in range(calDict['calRange']):
             calList.append([])
 
         # retrieve calendar configuration
@@ -133,7 +134,7 @@ class RenderHelper:
             calendar_template = file.read()
 
         # Insert month header
-        month_name = str(calDict['today'].month)
+        month_name = calendar.month_name[calDict['referenceDay'].month]
 
         # Insert battery icon
         # batteryDisplayMode - 0: do not show / 1: always show / 2: show when battery is low
@@ -171,7 +172,7 @@ class RenderHelper:
             dayOfMonth = currDate.day
             if currDate == calDict['today']:
                 cal_events_text += '<li><div class="datecircle">' + str(dayOfMonth) + '</div>\n'
-            elif currDate.month != calDict['today'].month:
+            elif currDate.month != calDict['referenceDay'].month:
                 cal_events_text += '<li><div class="date text-muted">' + str(dayOfMonth) + '</div>\n'
             else:
                 cal_events_text += '<li><div class="date">' + str(dayOfMonth) + '</div>\n'
@@ -181,7 +182,7 @@ class RenderHelper:
                 cal_events_text += '<div class="event'
                 if event['isUpdated']:
                     cal_events_text += ' text-danger'
-                elif currDate.month != calDict['today'].month:
+                elif currDate.month != calDict['referenceDay'].month:
                     cal_events_text += ' text-muted'
                 if event['isMultiday']:
                     if event['startDatetime'].date() == currDate:
