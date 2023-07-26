@@ -69,9 +69,9 @@ def main():
     loadConfig()
     init_logger()
     if buttonPresent:
-        from buttons.buttons import ButtonInteractions
-        
-        buttons = ButtonInteractions(config)
+        from buttons.buttons import ButtonHelper
+
+        buttons = ButtonHelper(config)
     run = RunHelper(config)
     date = dt.datetime.now(displayTZ).date()
     view = defaultView

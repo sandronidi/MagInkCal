@@ -5,7 +5,7 @@ from pytz import timezone
 from run.run import RunHelper
 
 
-class ButtonInteractions:
+class ButtonHelper:
     def __init__(self, config):
         self.view_button_pin = config['view_button_pin']
         self.previous_button_pin = config['previous_button_pin']
