@@ -118,6 +118,9 @@ class RenderHelper:
         dayOfWeekText = calDict['dayOfWeekText']
         weekStartDay = calDict['weekStartDay']
         is24hour = calDict['is24hour']
+        
+        # set week count
+        weekCount = round(calDict['calRange'] / 7)
 
         # for each item in the eventList, add them to the relevant day in our calendar list
         for event in calDict['events']:
@@ -125,16 +128,18 @@ class RenderHelper:
             if idx >= 0:
                 calList[idx].append(event)
             if event['isMultiday']:
-                idx = self.get_day_in_cal(calDict['calStartDate'], event['endDatetime'].date())
-                if idx < len(calList):
-                    calList[idx].append(event)
+                idxEnd = self.get_day_in_cal(calDict['calStartDate'], event['endDatetime'].date())
+                if idxEnd < len(calList):
+                    calList[idxEnd].append(event)
+                if weekCount == 1:
+                    for idxN in range(idx + 1 , idxEnd):
+                        if idxN < len(calList):
+                            calList[idxN].append(event)
+
 
         # Read html template
         with open(self.currPath + '/calendar_template.html', 'r') as file:
             calendar_template = file.read()
-        
-        # set week layout
-        weekCount = round(calDict['calRange'] / 7)
 
         # Insert month header
         month_name = calendar.month_name[calDict['referenceDay'].month]
@@ -207,9 +212,10 @@ class RenderHelper:
                 if event['isMultiday']:
                     if event['startDatetime'].date() == currDate:
                         cal_events_text += '">►' + event['summary']
-                    else:
-                        # calHtmlList.append(' text-multiday">')
+                    elif event['endDatetime'].date() == currDate:
                         cal_events_text += '">◄' + event['summary']
+                    else:
+                        cal_events_text += '">◄►' + event['summary']
                 elif event['allday']:
                     cal_events_text += '">' + event['summary']
                 else:
