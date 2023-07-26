@@ -1,0 +1,29 @@
+{
+  "displayTZ": "Europe/Zurich",  // [TZ] list of timezones - print(pytz.all_timezones)
+  "thresholdHours": 24,  // [int] considers events updated within last 12 hours as recently updated
+  "maxEventsPerDay": 0,  // [int 0 for dynamical] limits number of events to display (remainder displayed as '+X more')
+  "isDisplayToScreen": false,  // [bool] set to true when debugging rendering without displaying to screen
+  "isShutdownOnComplete": false,  // [bool] set to true to conserve power, false if in debugging mode
+  "piSugar2Present": false,  // [bool] is PiSugar2 in the Setup available or is Power directly attached
+  "batteryDisplayMode": 0,  // [0-2] 0: do not show / 1: always show / 2: show when battery is low
+  "weekStartDay": 0,  // [0-6] Monday = 0, Sunday = 6
+  "dayOfWeekText": ["M", "D", "M", "D", "F", "S", "S"],  // Monday as first item in list
+  "screenWidth": 1304,  // [int] Width of E-Ink display. Default is landscape. Need to rotate image to fit.
+  "screenHeight": 984,  // [int] Height of E-Ink display. Default is landscape. Need to rotate image to fit.
+  "imageWidth": 1304,  // [int] Width of image to be generated for display.
+  "imageHeight": 984,  // [int] Height of image to be generated for display.
+  "rotateAngle": 0,  // [int] If image is rendered in portrait orientation, angle to rotate to fit screen
+  "is24h": true,  // [bool] set 24-hour time format
+  "defaultView": "week",  // ["week" or "month"] Default View 
+  "weekStartToday": false,  // [bool] set to true to display today's date as the first day of the week
+  "monthStartToday": false,  // [bool] set to true to display today's date as the first day of the month
+  "calendars": [
+    "primary",
+    "addressbook#contacts@group.v.calendar.google.com"
+  ],  // [str] Google calendar ids
+  "buttonPresent": false,  // [bool] True if buttons are present on the display
+  "home_button_pin": 20,  // [int] Pin for home button
+  "view_button_pin": 17,  // [int] Pin for view button
+  "next_button_pin": 19,  // [int] Pin for the next button
+  "previous_button_pin": 18  // [int] Pin for the previous button
+}
