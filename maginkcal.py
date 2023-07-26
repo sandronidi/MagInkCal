@@ -95,11 +95,14 @@ def main():
         # Note: For Python datetime.weekday() - Monday = 0, Sunday = 6
         # For this implementation, each week starts on a Sunday and the calendar begins on the nearest elapsed Sunday
         # The calendar will also display 5 weeks of events to cover the upcoming month, ending on a Saturday
-        #if piSugar2Present:
-        powerService = PowerHelper()
-        powerService.sync_time()
-        currBatteryLevel = powerService.get_battery()
-        logger.info('Battery level at start: {:.3f}'.format(currBatteryLevel))
+        if piSugar2Present:
+            powerService = PowerHelper()
+            powerService.sync_time()
+            currBatteryLevel = powerService.get_battery()
+            logger.info('Battery level at start: {:.3f}'.format(currBatteryLevel))
+        else:
+            logger.info('no piSugar2 present set Dummy values')
+            currBatteryLevel = 100
 
         currDatetime = dt.datetime.now(displayTZ)
         logger.info("Time synchronised to {}".format(currDatetime))
@@ -134,9 +137,9 @@ def main():
                 displayService.calibrate(cycles=0)  # to calibrate in production
             displayService.update(calBlackImage, calRedImage)
             displayService.sleep()
-
-        currBatteryLevel = powerService.get_battery()
-        logger.info('Battery level at end: {:.3f}'.format(currBatteryLevel))
+        if piSugar2Present:
+            currBatteryLevel = powerService.get_battery()
+            logger.info('Battery level at end: {:.3f}'.format(currBatteryLevel))
 
     except Exception as e:
         logger.error(e)
