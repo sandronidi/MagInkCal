@@ -9,7 +9,6 @@ There will also be work needed to adjust the calendar rendering for different sc
 CSS stylesheets in the "render" folder.
 """
 import datetime as dt
-import locale
 import sys
 
 from pytz import timezone
@@ -63,7 +62,6 @@ def main():
     config = json.load(configFile)
 
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
-    #locale.setlocale(locale.LC_ALL, config['displayLanguage']) #local code for language (https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html)
     thresholdHours = config['thresholdHours']  # considers events updated within last 12 hours as recently updated
     maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more') (0 for dynamical)
     isDisplayToScreen = config['isDisplayToScreen']  # set to true when debugging rendering without displaying to screen
