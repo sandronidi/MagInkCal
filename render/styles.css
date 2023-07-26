@@ -74,8 +74,8 @@ body {
     width: 100%;
     padding: 0!important;
     margin: 0!important;
-    max-width: 984px;
-    height: 1304px;
+    max-width: 1304px;
+    height: 984px;
 }
 *, ::after, ::before {
     box-sizing: border-box;
@@ -95,14 +95,14 @@ Calendar Styling */
 }
 
 .month {
-  font-size: 9rem;
+  font-size: 10rem;
   font-family: "Quattrocento-Regular";
 }
 
 @media (min-width: 992px) {
   .month {
-    font-size: 9rem;
-    line-height: 13rem;
+    font-size: 10rem;
+    line-height: 11rem;
     font-family: "Quattrocento-Regular";
   }
 }
@@ -113,30 +113,60 @@ Calendar Styling */
 }
 
 .calendar .day-names {
-  font-size: 3.5rem;
-  line-height: 1.2;
+  font-size: 3rem;
+  line-height: .5;
   font-family: "Quattrocento-Regular";
 }
 
 .calendar .day-names li {
   text-transform: uppercase;
-  margin-top: 1rem;
-  margin-bottom: 2rem;
+  margin-top: .25rem;
+  margin-bottom: .25rem;
 }
 
 .calendar .days li {
   /* min-height: 12rem; */
+  min-height: 9.5rem;
+}
+
+.calendar .days-1-week li {
+  /* min-height: 12rem; */
+  min-height: 47rem;
+}
+
+.calendar .days-2-week li {
+  /* min-height: 12rem; */
+  min-height: 23.5rem;
+}
+
+.calendar .days-3-week li {
+  /* min-height: 12rem; */
+  min-height: 15.5rem;
+}
+
+.calendar .days-4-week li {
+  /* min-height: 12rem; */
   min-height: 11.5rem;
 }
 
+.calendar .days-5-week li {
+  /* min-height: 12rem; */
+  min-height: 9.3rem;
+}
+
+.calendar .days-6-week li {
+  /* min-height: 12rem; */
+  min-height: 7.8rem;
+}
+
 .calendar .days li .date {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
   line-height: 1.0;
 }
 
 .calendar .date {
   text-align: center;
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: bold;
   font-family: "Quattrocento-Regular";
 }

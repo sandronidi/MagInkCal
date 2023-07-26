@@ -45,6 +45,8 @@ def setCalStartEndTime(date, range, startToday, weekStartDay):
             first_of_month = date.replace(day=1)
             last_of_month = date.replace(day=1, month=date.month + 1) - dt.timedelta(days=1)
             days_until_week_start = (weekStartDay - first_of_month.weekday()) % 7
+            if days_until_week_start == 0:
+                days_until_week_start = 7
             StartDate = first_of_month - dt.timedelta(days=(7 - days_until_week_start))
             days_until_week_end = (weekStartDay - last_of_month.weekday()) % 7
             if days_until_week_end == 0:
@@ -63,7 +65,7 @@ def main():
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
     #locale.setlocale(locale.LC_ALL, config['displayLanguage']) #local code for language (https://docs.oracle.com/cd/E23824_01/html/E26033/glset.html)
     thresholdHours = config['thresholdHours']  # considers events updated within last 12 hours as recently updated
-    maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more')
+    maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more') (0 for dynamical)
     isDisplayToScreen = config['isDisplayToScreen']  # set to true when debugging rendering without displaying to screen
     isShutdownOnComplete = config['isShutdownOnComplete']  # set to true to conserve power, false if in debugging mode
     piSugar2Present = config['piSugar2Present'] # is PiSugar2 in the Setup available or is Power direct attached
@@ -103,7 +105,7 @@ def main():
         logger.info("Time synchronised to {}".format(currDatetime))
         currDate = currDatetime.date()
         #calRange = setCalStartEndTime(currDate, defaultView, weekStartToday, weekStartDay)
-        date = currDate.replace(month=currDate.month)
+        date = currDate.replace(month=2, year=2027 )
         calRange = setCalStartEndTime(date, "month", False , weekStartDay)
         calStartDatetime = displayTZ.localize(dt.datetime.combine(calRange['StartDate'], dt.datetime.min.time()))
         calEndDatetime = displayTZ.localize(dt.datetime.combine(calRange['EndDate'], dt.datetime.max.time()))

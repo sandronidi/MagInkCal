@@ -132,6 +132,9 @@ class RenderHelper:
         # Read html template
         with open(self.currPath + '/calendar_template.html', 'r') as file:
             calendar_template = file.read()
+        
+        # set week layout
+        weekCount = round(calDict['calRange'] / 7)
 
         # Insert month header
         month_name = calendar.month_name[calDict['referenceDay'].month]
@@ -166,6 +169,19 @@ class RenderHelper:
                 (i + weekStartDay) % 7] + "</li>\n"
 
         # Populate the date and events
+        if maxEventsPerDay == 0:
+            if weekCount == 1:
+                maxEventsPerDay = 25
+            if weekCount == 2:
+                maxEventsPerDay = 11
+            if weekCount == 3:
+                maxEventsPerDay = 8
+            if weekCount == 4:
+                maxEventsPerDay = 5
+            if weekCount == 5:
+                maxEventsPerDay = 3
+            if weekCount == 6:
+                maxEventsPerDay = 2
         cal_events_text = ''
         for i in range(len(calList)):
             currDate = calDict['calStartDate'] + timedelta(days=i)
@@ -178,52 +194,36 @@ class RenderHelper:
                 cal_events_text += '<li><div class="date">' + str(dayOfMonth) + '</div>\n'
             
             if len(calList[i]) <= maxEventsPerDay:
-                for j in range(min(len(calList[i]), maxEventsPerDay)):
-                    event = calList[i][j]
-                    cal_events_text += '<div class="event'
-                    if event['isUpdated']:
-                        cal_events_text += ' text-danger'
-                    elif currDate.month != calDict['referenceDay'].month:
-                        cal_events_text += ' text-muted'
-                    if event['isMultiday']:
-                        if event['startDatetime'].date() == currDate:
-                            cal_events_text += '">►' + event['summary']
-                        else:
-                            # calHtmlList.append(' text-multiday">')
-                            cal_events_text += '">◄' + event['summary']
-                    elif event['allday']:
-                        cal_events_text += '">' + event['summary']
-                    else:
-                        cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
-                            'summary']
-                    cal_events_text += '</div>\n'
+                maxEvents = maxEventsPerDay
             elif len(calList[i]) > maxEventsPerDay:
-                for j in range(min(len(calList[i]), maxEventsPerDay - 1)):
-                    event = calList[i][j]
-                    cal_events_text += '<div class="event'
-                    if event['isUpdated']:
-                        cal_events_text += ' text-danger'
-                    elif currDate.month != calDict['referenceDay'].month:
-                        cal_events_text += ' text-muted'
-                    if event['isMultiday']:
-                        if event['startDatetime'].date() == currDate:
-                            cal_events_text += '">►' + event['summary']
-                        else:
-                            # calHtmlList.append(' text-multiday">')
-                            cal_events_text += '">◄' + event['summary']
-                    elif event['allday']:
-                        cal_events_text += '">' + event['summary']
+                maxEvents = maxEventsPerDay - 1
+            for j in range(min(len(calList[i]), maxEvents)):
+                event = calList[i][j]
+                cal_events_text += '<div class="event'
+                if event['isUpdated']:
+                    cal_events_text += ' text-danger'
+                elif currDate.month != calDict['referenceDay'].month:
+                    cal_events_text += ' text-muted'
+                if event['isMultiday']:
+                    if event['startDatetime'].date() == currDate:
+                        cal_events_text += '">►' + event['summary']
                     else:
-                        cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
-                            'summary']
-                    cal_events_text += '</div>\n'
-                cal_events_text += '<div class="event text-muted">' + str(len(calList[i]) - (maxEventsPerDay - 1)) + ' more'
+                        # calHtmlList.append(' text-multiday">')
+                        cal_events_text += '">◄' + event['summary']
+                elif event['allday']:
+                    cal_events_text += '">' + event['summary']
+                else:
+                    cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
+                        'summary']
+                cal_events_text += '</div>\n'
+            if len(calList[i]) > maxEventsPerDay:
+                cal_events_text += '<div class="event text-muted">' + str(len(calList[i]) - (maxEvents)) + ' more'
 
             cal_events_text += '</li>\n'
 
         # Append the bottom and write the file
         htmlFile = open(self.currPath + '/calendar.html', "w")
-        htmlFile.write(calendar_template.format(month=month_name, battText=battText, dayOfWeek=cal_days_of_week,
+        htmlFile.write(calendar_template.format(month=month_name, battText=battText, dayOfWeek=cal_days_of_week, weeks=weekCount,
                                                 events=cal_events_text))
         htmlFile.close()
 
