@@ -56,11 +56,15 @@ def setCalStartEndTime(date, range, startToday, weekStartDay):
         else:
             return
 
-def main():
+def loadConfig():
     # Basic configuration settings (user replaceable)
     configFile = open('config.json')
     config = json.load(configFile)
 
+    global displayTZ, thresholdHours, maxEventsPerDay, isDisplayToScreen, isShutdownOnComplete
+    global piSugar2Present, batteryDisplayMode, weekStartDay, dayOfWeekText, screenWidth
+    global screenHeight, imageWidth, imageHeight, rotateAngle, calendars, is24hour
+    global defaultView, weekStartToday, monthStartToday
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
     thresholdHours = config['thresholdHours']  # considers events updated within last 12 hours as recently updated
     maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more') (0 for dynamical)
@@ -81,12 +85,17 @@ def main():
     weekStartToday = config['weekStartToday'] # Week view Start today or on weekStartDay
     monthStartToday = config['monthStartToday'] # Month view Start today or first day of month
 
+def init_logger():
     # Create and configure logger
     logging.basicConfig(filename="logfile.log", format='%(asctime)s %(levelname)s - %(message)s', filemode='a')
+    global logger
     logger = logging.getLogger('maginkcal')
     logger.addHandler(logging.StreamHandler(sys.stdout))  # print logger to stdout
     logger.setLevel(logging.INFO)
-    logger.info("Starting daily calendar update")
+
+def maginkcal(date, view, startToday):
+
+    logger.info("Starting calendar update")
 
     try:
         # Establish current date and time information
@@ -105,9 +114,7 @@ def main():
         currDatetime = dt.datetime.now(displayTZ)
         logger.info("Time synchronised to {}".format(currDatetime))
         currDate = currDatetime.date()
-        #calRange = setCalStartEndTime(currDate, defaultView, weekStartToday, weekStartDay)
-        date = currDate.replace(month=2, year=2027 )
-        calRange = setCalStartEndTime(date, "month", False , weekStartDay)
+        calRange = setCalStartEndTime(date, view, startToday, weekStartDay)
         calStartDatetime = displayTZ.localize(dt.datetime.combine(calRange['StartDate'], dt.datetime.min.time()))
         calEndDatetime = displayTZ.localize(dt.datetime.combine(calRange['EndDate'], dt.datetime.max.time()))
 
@@ -142,7 +149,7 @@ def main():
     except Exception as e:
         logger.error(e)
 
-    logger.info("Completed daily calendar update")
+    logger.info("Completed calendar update")
 
     logger.info("Checking if configured to shutdown safely - Current hour: {}".format(currDatetime.hour))
     if isShutdownOnComplete:
@@ -153,6 +160,15 @@ def main():
             logger.info("Shutting down safely.")
             import os
             os.system("sudo shutdown -h now")
+
+def main():
+    loadConfig()
+    init_logger()
+    date = dt.datetime.now(displayTZ).date()
+    view = "month"
+    startToday= False
+    maginkcal(date, view, startToday)
+
 
 
 if __name__ == "__main__":
