@@ -94,7 +94,6 @@ def init_logger():
     logger.setLevel(logging.INFO)
 
 def maginkcal(date, view, startToday):
-
     logger.info("Starting calendar update")
 
     try:
@@ -111,6 +110,12 @@ def maginkcal(date, view, startToday):
             logger.info('no piSugar2 present set Dummy values')
             currBatteryLevel = 100
 
+        if startToday == "default":
+            if view == "week":
+                startToday = weekStartToday
+            elif view == "month":
+                startToday = monthStartToday
+                  
         currDatetime = dt.datetime.now(displayTZ)
         logger.info("Time synchronised to {}".format(currDatetime))
         currDate = currDatetime.date()
@@ -165,8 +170,8 @@ def main():
     loadConfig()
     init_logger()
     date = dt.datetime.now(displayTZ).date()
-    view = "month"
-    startToday= False
+    view = defaultView
+    startToday= "default"
     maginkcal(date, view, startToday)
 
 
