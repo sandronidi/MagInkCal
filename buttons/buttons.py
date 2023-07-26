@@ -35,7 +35,7 @@ class ButtonHelper:
         self.current_date = dt.datetime.now(self.displayTZ).date()
         self.current_view = self.defaultView
 
-    def view_button_callback(self, channel):
+    def view_button_callback(self):
         print("View button pressed!")
         # Toggle between "week" and "month" view
         if self.current_view == "week":
@@ -46,7 +46,7 @@ class ButtonHelper:
         # Call maginkcal to update the display with the new view
         self.run.maginkcal(self.current_date, self.current_view, "default")
 
-    def previous_button_callback(self, channel):
+    def previous_button_callback(self):
         print("Previous button pressed!")
         # Navigate to the previous week/month based on the current view
         if self.current_view == "week":
@@ -58,7 +58,7 @@ class ButtonHelper:
         # Call maginkcal to update the display with the new date
         self.run.maginkcal(self.current_date, self.current_view, "default")
 
-    def next_button_callback(self, channel):
+    def next_button_callback(self):
         print("Next button pressed!")
         # Navigate to the next week/month based on the current view
         if self.current_view == "week":
@@ -70,7 +70,7 @@ class ButtonHelper:
         # Call maginkcal to update the display with the new date
         self.run.maginkcal(self.current_date, self.current_view, "default")
 
-    def home_button_callback(self, channel):
+    def home_button_callback(self):
         print("Home (Refresh) button pressed!")
         # Refresh the calendar display with the current date and default view
         self.run.maginkcal(dt.datetime.now(self.displayTZ).date(), self.defaultView, "default")
