@@ -15,56 +15,23 @@ from pytz import timezone
 from gcal.gcal import GcalHelper
 from render.render import RenderHelper
 from power.power import PowerHelper
+from run.run import RunHelper
+
 import json
 import logging
 
 
-def setCalStartEndTime(date, range, startToday, weekStartDay):
-    if startToday:
-        if range == "week":
-            StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
-            EndDate = StartDate + dt.timedelta(days=(6))
-            days = (EndDate - StartDate).days  + 1
-            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
-        elif range == "month":
-            StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
-            EndDate = StartDate + dt.timedelta(days=(5 * 7 - 1))
-            days = (EndDate - StartDate).days  + 1
-            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
-        else:
-            return
-    else:
-        if range == "week":
-            days_until_week_start = (date.weekday()- weekStartDay) % 7
-            StartDate = date - dt.timedelta(days=(0 + days_until_week_start))
-            EndDate = StartDate + dt.timedelta(days=(6))
-            days = (EndDate - StartDate).days  + 1
-            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
-        elif range == "month":
-            first_of_month = date.replace(day=1)
-            last_of_month = date.replace(day=1, month=date.month + 1) - dt.timedelta(days=1)
-            days_until_week_start = (weekStartDay - first_of_month.weekday()) % 7
-            if days_until_week_start == 0:
-                days_until_week_start = 7
-            StartDate = first_of_month - dt.timedelta(days=(7 - days_until_week_start))
-            days_until_week_end = (weekStartDay - last_of_month.weekday()) % 7
-            if days_until_week_end == 0:
-                days_until_week_end = 7
-            EndDate = last_of_month + dt.timedelta(days=days_until_week_end - 1)
-            days = (EndDate - StartDate).days  + 1
-            return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
-        else:
-            return
-
 def loadConfig():
     # Basic configuration settings (user replaceable)
     configFile = open('config.json')
+    global config
     config = json.load(configFile)
 
     global displayTZ, thresholdHours, maxEventsPerDay, isDisplayToScreen, isShutdownOnComplete
     global piSugar2Present, batteryDisplayMode, weekStartDay, dayOfWeekText, screenWidth
     global screenHeight, imageWidth, imageHeight, rotateAngle, calendars, is24hour
     global defaultView, weekStartToday, monthStartToday
+    global buttonPresent, home_button_pin, view_button_pin, next_button_pin, previous_button_pin
     displayTZ = timezone(config['displayTZ']) # list of timezones - print(pytz.all_timezones)
     thresholdHours = config['thresholdHours']  # considers events updated within last 12 hours as recently updated
     maxEventsPerDay = config['maxEventsPerDay']  # limits number of events to display (remainder displayed as '+X more') (0 for dynamical)
@@ -84,6 +51,11 @@ def loadConfig():
     defaultView = config['defaultView'] # Default View ["week" or "month"]
     weekStartToday = config['weekStartToday'] # Week view Start today or on weekStartDay
     monthStartToday = config['monthStartToday'] # Month view Start today or first day of month
+    buttonPresent = config['buttonPresent']  # True if buttons are present on display
+    home_button_pin = config['home_button_pin']  # Pin for home button
+    view_button_pin = config['view_button_pin']  # Pin for view button
+    next_button_pin = config['next_button_pin']  # Pin for next event button
+    previous_button_pin = config['previous_button_pin']  # Pin for previous event button
 
 def init_logger():
     # Create and configure logger
@@ -93,86 +65,18 @@ def init_logger():
     logger.addHandler(logging.StreamHandler(sys.stdout))  # print logger to stdout
     logger.setLevel(logging.INFO)
 
-def maginkcal(date, view, startToday):
-    logger.info("Starting calendar update")
-
-    try:
-        # Establish current date and time information
-        # Note: For Python datetime.weekday() - Monday = 0, Sunday = 6
-        # For this implementation, each week starts on a Sunday and the calendar begins on the nearest elapsed Sunday
-        # The calendar will also display 5 weeks of events to cover the upcoming month, ending on a Saturday
-        if piSugar2Present:
-            powerService = PowerHelper()
-            powerService.sync_time()
-            currBatteryLevel = powerService.get_battery()
-            logger.info('Battery level at start: {:.3f}'.format(currBatteryLevel))
-        else:
-            logger.info('no piSugar2 present set Dummy values')
-            currBatteryLevel = 100
-
-        if startToday == "default":
-            if view == "week":
-                startToday = weekStartToday
-            elif view == "month":
-                startToday = monthStartToday
-                  
-        currDatetime = dt.datetime.now(displayTZ)
-        logger.info("Time synchronised to {}".format(currDatetime))
-        currDate = currDatetime.date()
-        calRange = setCalStartEndTime(date, view, startToday, weekStartDay)
-        calStartDatetime = displayTZ.localize(dt.datetime.combine(calRange['StartDate'], dt.datetime.min.time()))
-        calEndDatetime = displayTZ.localize(dt.datetime.combine(calRange['EndDate'], dt.datetime.max.time()))
-
-        # Using Google Calendar to retrieve all events within start and end date (inclusive)
-        start = dt.datetime.now()
-        gcalService = GcalHelper()
-        eventList = gcalService.retrieve_events(calendars, calStartDatetime, calEndDatetime, displayTZ, thresholdHours)
-        #eventList = []
-        logger.info("Calendar events retrieved in " + str(dt.datetime.now() - start))
-
-        # Populate dictionary with information to be rendered on e-ink display
-        calDict = {'events': eventList, 'calStartDate': calRange['StartDate'], 'today': currDate, 'lastRefresh': currDatetime,
-                   'batteryLevel': currBatteryLevel, 'batteryDisplayMode': batteryDisplayMode,
-                   'dayOfWeekText': dayOfWeekText, 'weekStartDay': weekStartDay, 'maxEventsPerDay': maxEventsPerDay,
-                   'is24hour': is24hour, 'calRange': calRange['Range'], 'referenceDay': date}
-
-        renderService = RenderHelper(imageWidth, imageHeight, rotateAngle)
-        calBlackImage, calRedImage = renderService.process_inputs(calDict)
-
-        if isDisplayToScreen:
-            from display.display import DisplayHelper
-            displayService = DisplayHelper(screenWidth, screenHeight)
-            if currDate.weekday() == weekStartDay:
-                # calibrate display once a week to prevent ghosting
-                displayService.calibrate(cycles=0)  # to calibrate in production
-            displayService.update(calBlackImage, calRedImage)
-            displayService.sleep()
-        if piSugar2Present:
-            currBatteryLevel = powerService.get_battery()
-            logger.info('Battery level at end: {:.3f}'.format(currBatteryLevel))
-
-    except Exception as e:
-        logger.error(e)
-
-    logger.info("Completed calendar update")
-
-    logger.info("Checking if configured to shutdown safely - Current hour: {}".format(currDatetime.hour))
-    if isShutdownOnComplete:
-        # implementing a failsafe so that we don't shutdown when debugging
-        # checking if it's 6am in the morning, which is the time I've set PiSugar to wake and refresh the calendar
-        # if it is 6am, shutdown the RPi. if not 6am, assume I'm debugging the code, so do not shutdown
-        if currDatetime.hour == 6:
-            logger.info("Shutting down safely.")
-            import os
-            os.system("sudo shutdown -h now")
-
 def main():
     loadConfig()
     init_logger()
+    if buttonPresent:
+        from buttons.buttons import ButtonInteractions
+        
+        buttons = ButtonInteractions(config)
+    run = RunHelper(config)
     date = dt.datetime.now(displayTZ).date()
     view = defaultView
     startToday= "default"
-    maginkcal(date, view, startToday)
+    run.maginkcal(date, view, startToday)
 
 
 

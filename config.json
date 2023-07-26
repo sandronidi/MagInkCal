@@ -19,6 +19,12 @@
   "weekStartToday": false,
   "monthStartToday": false,
   "calendars": [
-    "primary"
-  ]
+    "primary",
+    "addressbook#contacts@group.v.calendar.google.com"
+  ],
+  "buttonPresent": false,
+  "home_button_pin": 20,
+  "view_button_pin": 17,
+  "next_button_pin": 19,
+  "previous_button_pin": 18
 }
