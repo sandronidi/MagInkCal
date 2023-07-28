@@ -217,7 +217,10 @@ class RenderHelper:
                     else:
                         cal_events_text += '">◄►' + event['summary']
                 elif event['allday']:
-                    cal_events_text += '">' + event['summary']
+                    if event['summary'][-14:] == 'hat Geburtstag':
+                        cal_events_text += '">🎂' + event['summary'][:-15]
+                    else:
+                        cal_events_text += '">' + event['summary']
                 else:
                     cal_events_text += '">' + self.get_short_time(event['startDatetime'], is24hour) + ' ' + event[
                         'summary']
@@ -230,7 +233,7 @@ class RenderHelper:
         # Append the bottom and write the file
         htmlFile = open(self.currPath + '/calendar.html', "w")
         htmlFile.write(calendar_template.format(month=month_name, battText=battText, dayOfWeek=cal_days_of_week, weeks=weekCount,
-                                                events=cal_events_text))
+                                                events=cal_events_text, time=calDict['time']))
         htmlFile.close()
 
         calBlackImage, calRedImage = self.get_screenshot()
