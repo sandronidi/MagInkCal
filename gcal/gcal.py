@@ -102,7 +102,12 @@ class GcalHelper:
 
         events = []
         for eve in events_result:
-            events += eve.get('items', [])
+            untagged_events = eve.get('items', [])
+            tagged_events = []
+            for e in untagged_events:
+                e['calendar'] = eve['summary']
+                tagged_events.append(e)
+            events += tagged_events
             # events = events_result.get('items', [])
 
         if not events:
@@ -129,6 +134,7 @@ class GcalHelper:
             newEvent['updatedDatetime'] = self.to_datetime(event['updated'], localTZ)
             newEvent['isUpdated'] = self.is_recent_updated(newEvent['updatedDatetime'], thresholdHours)
             newEvent['isMultiday'] = self.is_multiday(newEvent['startDatetime'], newEvent['endDatetime'])
+            newEvent['calendar'] = event['calendar']
             eventList.append(newEvent)
 
         # We need to sort eventList because the event will be sorted in "calendar order" instead of hours order

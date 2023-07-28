@@ -20,6 +20,7 @@ import pathlib
 from PIL import Image
 import logging
 import calendar
+from operator import itemgetter
 
 
 class RenderHelper:
@@ -188,7 +189,11 @@ class RenderHelper:
             if weekCount == 6:
                 maxEventsPerDay = 2
         cal_events_text = ''
+        if weekCount == 1:
+            for i in range(len(calList)):
+                calList[i] = sorted(calList[i], key=lambda x: x['calendar'])
         for i in range(len(calList)):
+            calGroup = ''
             currDate = calDict['calStartDate'] + timedelta(days=i)
             dayOfMonth = currDate.day
             if currDate == calDict['today']:
@@ -204,6 +209,10 @@ class RenderHelper:
                 maxEvents = maxEventsPerDay - 1
             for j in range(min(len(calList[i]), maxEvents)):
                 event = calList[i][j]
+                if weekCount == 1:
+                    if event['calendar'] != calGroup:
+                        calGroup = event['calendar']
+                        cal_events_text += '<div class="group">' + calGroup + '</div>\n'
                 cal_events_text += '<div class="event'
                 if event['isUpdated']:
                     cal_events_text += ' text-danger'
