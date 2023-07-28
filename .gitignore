@@ -143,4 +143,5 @@ dmypy.json
 .pyre/
 
 # VS Code Stuff
-.vscode/launch.json
+.vscode/*
+
