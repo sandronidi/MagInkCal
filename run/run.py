@@ -110,7 +110,7 @@ class RunHelper:
             calDict = {'events': eventList, 'calStartDate': calRange['StartDate'], 'today': currDate, 'lastRefresh': currDatetime,
                     'batteryLevel': currBatteryLevel, 'batteryDisplayMode': self.batteryDisplayMode,
                     'dayOfWeekText': self.dayOfWeekText, 'weekStartDay': self.weekStartDay, 'maxEventsPerDay': self.maxEventsPerDay,
-                    'is24hour': self.is24hour, 'calRange': calRange['Range'], 'referenceDay': date}
+                    'is24hour': self.is24hour, 'calRange': calRange['Range'], 'referenceDay': date, 'time': currDatetime.strftime("%d.%m.%Y %H:%M:%S")}
 
             renderService = RenderHelper(self.imageWidth, self.imageHeight, self.rotateAngle)
             calBlackImage, calRedImage = renderService.process_inputs(calDict)

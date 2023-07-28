@@ -102,7 +102,7 @@ Calendar Styling */
 @media (min-width: 992px) {
   .month {
     font-size: 10rem;
-    line-height: 11rem;
+    line-height: 10rem;
     font-family: "Quattrocento-Regular";
   }
 }
@@ -228,6 +228,49 @@ Calendar Styling */
 
 .calendar .days li.outside .date {
   color: #ddd;
+}
+
+div.time {
+  position: absolute;
+  top: 5;
+  left: 590;
+  font-size: .75rem;
+}
+
+div.home_container {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  top: 10;
+  left: 55;
+  font-size: 2rem;
+}
+
+div.view_container {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  top: 10;
+  left: 155;
+  font-size: 2rem;
+}
+
+div.previous_container {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  top: 10;
+  left: 1104;
+  font-size: 2rem;
+}
+
+div.next_container {
+  width: 45px;
+  height: 45px;
+  position: absolute;
+  top: 10;
+  left: 1204;
+  font-size: 2rem;
 }
 
 div.batt_container {
