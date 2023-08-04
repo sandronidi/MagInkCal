@@ -227,7 +227,7 @@ class RenderHelper:
                         cal_events_text += '">◄►' + event['summary']
                 elif event['allday']:
                     if event['summary'][-14:] == 'hat Geburtstag':
-                        cal_events_text += '">🎂' + event['summary'][:-15]
+                        cal_events_text += '"><img src="media/cake.png" /> ' + event['summary'][:-15]
                     else:
                         cal_events_text += '">' + event['summary']
                 else:
