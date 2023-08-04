@@ -18,8 +18,8 @@
     "weekStartToday": false,
     "monthStartToday": false,
     "calendars": [
-      "primary",
-      "addressbook#contacts@group.v.calendar.google.com"
+      {"id":"primary", "name": "Sandro", "position": 2},
+      {"id": "addressbook#contacts@group.v.calendar.google.com", "name": "Geburtstage", "position": 1}
     ],
     "buttonPresent": false,
     "home_button_pin": 20,

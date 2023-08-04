@@ -191,7 +191,7 @@ class RenderHelper:
         cal_events_text = ''
         if weekCount == 1:
             for i in range(len(calList)):
-                calList[i] = sorted(calList[i], key=lambda x: x['calendar'])
+                calList[i] = sorted(calList[i], key=lambda x: x['position'])
         for i in range(len(calList)):
             calGroup = ''
             currDate = calDict['calStartDate'] + timedelta(days=i)

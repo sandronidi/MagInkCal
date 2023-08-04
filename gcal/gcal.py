@@ -95,10 +95,12 @@ class GcalHelper:
         events_result = []
         for cal in calendars:
             events_result.append(
-                self.service.events().list(calendarId=cal, timeMin=minTimeStr,
+                self.service.events().list(calendarId=cal["id"], timeMin=minTimeStr,
                                            timeMax=maxTimeStr, singleEvents=True,
                                            orderBy='startTime').execute()
             )
+            events_result[-1]['summary'] = cal["name"]
+            events_result[-1]['position'] = cal["position"]
 
         events = []
         for eve in events_result:
@@ -106,6 +108,7 @@ class GcalHelper:
             tagged_events = []
             for e in untagged_events:
                 e['calendar'] = eve['summary']
+                e['position'] = eve['position']
                 tagged_events.append(e)
             events += tagged_events
             # events = events_result.get('items', [])
@@ -135,6 +138,7 @@ class GcalHelper:
             newEvent['isUpdated'] = self.is_recent_updated(newEvent['updatedDatetime'], thresholdHours)
             newEvent['isMultiday'] = self.is_multiday(newEvent['startDatetime'], newEvent['endDatetime'])
             newEvent['calendar'] = event['calendar']
+            newEvent['position'] = event['position']
             eventList.append(newEvent)
 
         # We need to sort eventList because the event will be sorted in "calendar order" instead of hours order
