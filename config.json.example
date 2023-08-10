@@ -18,9 +18,9 @@
   "weekStartToday": false,  // [bool] set to true to display today's date as the first day of the week
   "monthStartToday": false,  // [bool] set to true to display today's date as the first day of the month
   "calendars": [
-    "primary",
+    {"id":"primary", "name": "Sandro", "position": 2},
     "addressbook#contacts@group.v.calendar.google.com"
-  ],  // [str] Google calendar ids
+  ],  // [str] Google calendar ids, [str] Dispaly name, [int] Order Position
   "buttonPresent": false,  // [bool] True if buttons are present on the display
   "home_button_pin": 20,  // [int] Pin for home button
   "view_button_pin": 17,  // [int] Pin for view button
