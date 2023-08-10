@@ -42,10 +42,12 @@ sudo apt update
 sudo apt-get install python3-pip
 sudo apt-get install chromium-chromedriver
 sudo apt-get install libopenjp2-7-dev
+sudo apt-get install wkhtmltopdf
 pip3 install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 pip3 install pytz
 pip3 install selenium
 pip3 install Pillow
+pip3 install imgkit
 ```
 
 4. Run the following commands in the RPi Terminal to install the libraries needed to drive the E-Ink display. See [this page](https://www.waveshare.com/wiki/12.48inch_e-Paper_Module) for more details.

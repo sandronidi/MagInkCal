@@ -21,6 +21,7 @@ from PIL import Image
 import logging
 import calendar
 from operator import itemgetter
+import imgkit
 
 
 class RenderHelper:
@@ -84,6 +85,39 @@ class RenderHelper:
         self.logger.info('Image colours processed. Extracted grayscale and red images.')
         return blackimg, redimg
 
+    def render_image(self):
+        options = {
+            'format': 'png',
+            'encoding': "UTF-8",
+            'height': self.imageHeight,
+            'width': self.imageWidth,
+            'enable-local-file-access': None
+        }
+
+        imgkit.from_file(self.currPath + '/calendar.html', self.currPath + '/calendar.png', options=options)
+
+        self.logger.info('Screenshot captured and saved to file.')
+
+        redimg = Image.open(self.currPath + '/calendar.png')  # get image)
+        rpixels = redimg.load()  # create the pixel map
+        blackimg = Image.open(self.currPath + '/calendar.png')  # get image)
+        bpixels = blackimg.load()  # create the pixel map
+
+        for i in range(redimg.size[0]):  # loop through every pixel in the image
+            for j in range(redimg.size[1]): # since both bitmaps are identical, cycle only once and not both bitmaps
+                if rpixels[i, j][0] <= rpixels[i, j][1] and rpixels[i, j][0] <= rpixels[i, j][2]:  # if is not red
+                    rpixels[i, j] = (255, 255, 255)  # change it to white in the red image bitmap
+
+                elif bpixels[i, j][0] > bpixels[i, j][1] and bpixels[i, j][0] > bpixels[i, j][2]:  # if is red
+                    bpixels[i, j] = (255, 255, 255)  # change to white in the black image bitmap
+
+        redimg = redimg.rotate(self.rotateAngle, expand=True)
+        blackimg = blackimg.rotate(self.rotateAngle, expand=True)
+
+        self.logger.info('Image colours processed. Extracted grayscale and red images.')
+        return blackimg, redimg
+
+        
     def get_day_in_cal(self, startDate, eventDate):
         delta = eventDate - startDate
         return delta.days
@@ -245,6 +279,7 @@ class RenderHelper:
                                                 events=cal_events_text, time=calDict['time']))
         htmlFile.close()
 
-        calBlackImage, calRedImage = self.get_screenshot()
+        calBlackImage, calRedImage = self.render_image()
+#        calBlackImage, calRedImage = self.get_screenshot()
 
         return calBlackImage, calRedImage
