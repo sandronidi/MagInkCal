@@ -6,6 +6,9 @@ gcal/token.pickle
 render/calendar.html
 render/calendar.png
 
+# Configfile
+config.json
+
 #intellij config
 .idea/
 

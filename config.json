@@ -19,7 +19,9 @@
     "monthStartToday": false,
     "calendars": [
       {"id":"primary", "name": "Sandro", "position": 2},
-      {"id": "addressbook#contacts@group.v.calendar.google.com", "name": "Geburtstage", "position": 1}
+      {"id": "addressbook#contacts@group.v.calendar.google.com", "name": "Geburtstage", "position": 1},
+      {"id": "b9263254c92fe8d35bf09051062471fc3300068699b840ede08e614fb18c914f@group.calendar.google.com", "name": "Jael", "position": 3},
+      {"id": "94d9dffaaa9ecdc47cbc36ada8ba3c496724536d2b5f5f3c3dd56e59dfd356d4@group.calendar.google.com", "name": "Nils & Kai", "position": 4}
     ],
     "buttonPresent": false,
     "home_button_pin": 20,
