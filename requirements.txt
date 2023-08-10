@@ -5,3 +5,5 @@ pytz
 selenium
 Pillow
 imgkit
+opencv-python-headless
+numpy

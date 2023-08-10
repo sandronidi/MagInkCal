@@ -11,17 +11,15 @@ calendar and refreshing of the eInk display. In the future, I might choose to ge
 RPi device, while using a ESP32 or PiZero purely to just retrieve the image from a file host and update the screen.
 """
 
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
 from time import sleep
 from datetime import timedelta
 import pathlib
-from PIL import Image
 import logging
 import calendar
 from operator import itemgetter
 import imgkit
+import cv2
+import numpy as np
 
 
 class RenderHelper:
@@ -32,58 +30,18 @@ class RenderHelper:
         self.htmlFile = 'file://' + self.currPath + '/calendar.html'
         self.imageWidth = width
         self.imageHeight = height
-        self.rotateAngle = angle
+        if angle == 0:
+            self.rotate = False
+        elif angle == 90:
+            self.rotate = True
+            self.rotateAngle = cv2.ROTATE_90_CLOCKWISE
+        elif angle == 180:
+            self.rotate = True
+            self.rotateAngle = cv2.ROTATE_180
+        elif angle == 270:
+            self.rotate = True
+            self.rotateAngle = cv2.ROTATE_90_COUNTERCLOCKWISE
 
-    def set_viewport_size(self, driver):
-
-        # Extract the current window size from the driver
-        current_window_size = driver.get_window_size()
-
-        # Extract the client window size from the html tag
-        html = driver.find_element(By.TAG_NAME,'html')
-        inner_width = int(html.get_attribute("clientWidth"))
-        inner_height = int(html.get_attribute("clientHeight"))
-
-        # "Internal width you want to set+Set "outer frame width" to window size
-        target_width = self.imageWidth + (current_window_size["width"] - inner_width)
-        target_height = self.imageHeight + (current_window_size["height"] - inner_height)
-
-        driver.set_window_rect(
-            width=target_width,
-            height=target_height)
-
-    def get_screenshot(self):
-        opts = Options()
-        opts.add_argument("--headless")
-        opts.add_argument("--hide-scrollbars");
-        opts.add_argument('--force-device-scale-factor=1')
-        driver = webdriver.Chrome(options=opts)
-        self.set_viewport_size(driver)
-        driver.get(self.htmlFile)
-        sleep(1)
-        driver.get_screenshot_as_file(self.currPath + '/calendar.png')
-        driver.quit()
-
-        self.logger.info('Screenshot captured and saved to file.')
-
-        redimg = Image.open(self.currPath + '/calendar.png')  # get image)
-        rpixels = redimg.load()  # create the pixel map
-        blackimg = Image.open(self.currPath + '/calendar.png')  # get image)
-        bpixels = blackimg.load()  # create the pixel map
-
-        for i in range(redimg.size[0]):  # loop through every pixel in the image
-            for j in range(redimg.size[1]): # since both bitmaps are identical, cycle only once and not both bitmaps
-                if rpixels[i, j][0] <= rpixels[i, j][1] and rpixels[i, j][0] <= rpixels[i, j][2]:  # if is not red
-                    rpixels[i, j] = (255, 255, 255)  # change it to white in the red image bitmap
-
-                elif bpixels[i, j][0] > bpixels[i, j][1] and bpixels[i, j][0] > bpixels[i, j][2]:  # if is red
-                    bpixels[i, j] = (255, 255, 255)  # change to white in the black image bitmap
-
-        redimg = redimg.rotate(self.rotateAngle, expand=True)
-        blackimg = blackimg.rotate(self.rotateAngle, expand=True)
-
-        self.logger.info('Image colours processed. Extracted grayscale and red images.')
-        return blackimg, redimg
 
     def render_image(self):
         options = {
@@ -98,21 +56,25 @@ class RenderHelper:
 
         self.logger.info('Screenshot captured and saved to file.')
 
-        redimg = Image.open(self.currPath + '/calendar.png')  # get image)
-        rpixels = redimg.load()  # create the pixel map
-        blackimg = Image.open(self.currPath + '/calendar.png')  # get image)
-        bpixels = blackimg.load()  # create the pixel map
+        img = cv2.imread(self.currPath + '/calendar.png', cv2.IMREAD_UNCHANGED)  # get image
 
-        for i in range(redimg.size[0]):  # loop through every pixel in the image
-            for j in range(redimg.size[1]): # since both bitmaps are identical, cycle only once and not both bitmaps
-                if rpixels[i, j][0] <= rpixels[i, j][1] and rpixels[i, j][0] <= rpixels[i, j][2]:  # if is not red
-                    rpixels[i, j] = (255, 255, 255)  # change it to white in the red image bitmap
+        #mask
+        lower_red = np.array([0,0,1,255])
+        upper_red = np.array([0,0,255,255])
+        mask = cv2.inRange(img, lower_red, upper_red)
 
-                elif bpixels[i, j][0] > bpixels[i, j][1] and bpixels[i, j][0] > bpixels[i, j][2]:  # if is red
-                    bpixels[i, j] = (255, 255, 255)  # change to white in the black image bitmap
+        # set my output img to zero everywhere except my mask
+        redimg = img.copy()
+        redimg[np.where(mask==0)] = 0
 
-        redimg = redimg.rotate(self.rotateAngle, expand=True)
-        blackimg = blackimg.rotate(self.rotateAngle, expand=True)
+        blackimg = img[:,:,2]
+
+        if self.rotate:
+            redimg = cv2.rotate(redimg, self.rotateAngle)
+            blackimg = cv2.rotate(blackimg, self.rotateAngle)
+        #save channels for debugging
+        #cv2.imwrite(self.currPath + '/red-channel.png',redimg) 
+        #cv2.imwrite(self.currPath + '/black-channel.png',blackimg) 
 
         self.logger.info('Image colours processed. Extracted grayscale and red images.')
         return blackimg, redimg
@@ -280,6 +242,5 @@ class RenderHelper:
         htmlFile.close()
 
         calBlackImage, calRedImage = self.render_image()
-#        calBlackImage, calRedImage = self.get_screenshot()
 
         return calBlackImage, calRedImage
