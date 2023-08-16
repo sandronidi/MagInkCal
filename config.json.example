@@ -14,7 +14,7 @@
   "imageHeight": 984,  // [int] Height of image to be generated for display.
   "rotateAngle": 0,  // [int] If image is rendered in portrait orientation, angle to rotate to fit screen
   "is24h": true,  // [bool] set 24-hour time format
-  "defaultView": "week",  // ["week" or "month"] Default View 
+  "defaultView": "week",  // ["week" or "2week" or "month"] Default View 
   "weekStartToday": false,  // [bool] set to true to display today's date as the first day of the week
   "monthStartToday": false,  // [bool] set to true to display today's date as the first day of the month
   "calendars": [

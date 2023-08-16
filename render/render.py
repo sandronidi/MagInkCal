@@ -185,7 +185,7 @@ class RenderHelper:
             if weekCount == 6:
                 maxEventsPerDay = 2
         cal_events_text = ''
-        if weekCount == 1:
+        if weekCount < 3:
             for i in range(len(calList)):
                 calList[i] = sorted(calList[i], key=lambda x: x['position'])
         for i in range(len(calList)):
@@ -205,7 +205,7 @@ class RenderHelper:
                 maxEvents = maxEventsPerDay - 1
             for j in range(min(len(calList[i]), maxEvents)):
                 event = calList[i][j]
-                if weekCount == 1:
+                if weekCount < 3:
                     if event['calendar'] != calGroup:
                         calGroup = event['calendar']
                         cal_events_text += '<div class="group">' + calGroup + '</div>\n'

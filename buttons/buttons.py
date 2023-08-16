@@ -39,8 +39,10 @@ class ButtonHelper:
         print("View button pressed!")
         # Toggle between "week" and "month" view
         if self.current_view == "week":
+            self.current_view = "2week"
+        elif self.current_view == "2week":
             self.current_view = "month"
-        else:
+        elif self.current_view == "month":
             self.current_view = "week"
 
         # Call maginkcal to update the display with the new view
