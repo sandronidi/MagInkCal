@@ -5,6 +5,8 @@ gcal/token.pickle
 # Intermediate render files
 render/calendar.html
 render/calendar.png
+render/black-channel.png
+render/red-channel.png
 
 # Configfile
 config.json
