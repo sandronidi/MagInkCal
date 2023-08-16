@@ -60,8 +60,8 @@ class RenderHelper:
         img = cv2.imread(self.currPath + '/calendar.png', cv2.IMREAD_UNCHANGED)  # get image
 
         #mask
-        lower_red = np.array([0,0,1,255])
-        upper_red = np.array([0,0,255,255])
+        lower_red = np.array([0,0,128,255])
+        upper_red = np.array([128,128,255,255])
         mask = cv2.inRange(img, lower_red, upper_red)
 
         # set my output img to zero everywhere except my mask
@@ -215,7 +215,7 @@ class RenderHelper:
                         cal_events_text += '<div class="group">' + calGroup + '</div>\n'
                 cal_events_text += '<div class="event'
                 if event['isUpdated']:
-                    cal_events_text += ' text-danger'
+                    cal_events_text += ' text-red'
                 elif currDate.month != calDict['referenceDay'].month:
                     cal_events_text += ' text-muted'
                 if event['isMultiday']:
