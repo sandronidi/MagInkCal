@@ -70,13 +70,17 @@ def main():
     init_logger()
     if buttonPresent:
         from buttons.buttons import ButtonHelper
-
         buttons = ButtonHelper(config)
     run = RunHelper(config)
     date = dt.datetime.now(displayTZ).date()
     view = defaultView
     startToday= "default"
+#    date = date + dt.timedelta(days=14)
     run.maginkcal(date, view, startToday)
+    
+    if buttonPresent:
+        while True:
+            pass
 
 
 
