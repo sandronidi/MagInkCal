@@ -38,6 +38,11 @@ class RunHelper:
                 EndDate = StartDate + dt.timedelta(days=(6))
                 days = (EndDate - StartDate).days  + 1
                 return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+            if range == "2week":
+                StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
+                EndDate = StartDate + dt.timedelta(days=(13))
+                days = (EndDate - StartDate).days  + 1
+                return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
             elif range == "month":
                 StartDate = date - dt.timedelta(days=((date.weekday() + (7 - weekStartDay)) % 7))
                 EndDate = StartDate + dt.timedelta(days=(5 * 7 - 1))
@@ -50,6 +55,12 @@ class RunHelper:
                 days_until_week_start = (date.weekday()- weekStartDay) % 7
                 StartDate = date - dt.timedelta(days=(0 + days_until_week_start))
                 EndDate = StartDate + dt.timedelta(days=(6))
+                days = (EndDate - StartDate).days  + 1
+                return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
+            if range == "2week":
+                days_until_week_start = (date.weekday()- weekStartDay) % 7
+                StartDate = date - dt.timedelta(days=(0 + days_until_week_start))
+                EndDate = StartDate + dt.timedelta(days=(13))
                 days = (EndDate - StartDate).days  + 1
                 return {"StartDate": StartDate , "EndDate": EndDate, "Range": days}
             elif range == "month":
@@ -87,7 +98,7 @@ class RunHelper:
                 currBatteryLevel = 100
 
             if startToday == "default":
-                if view == "week":
+                if view == "week" or "2week":
                     startToday = self.weekStartToday
                 elif view == "month":
                     startToday = self.monthStartToday

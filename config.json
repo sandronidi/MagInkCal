@@ -14,7 +14,7 @@
     "imageHeight": 984,
     "rotateAngle": 0,
     "is24h": true,
-    "defaultView": "week",
+    "defaultView": "2week",
     "weekStartToday": false,
     "monthStartToday": false,
     "calendars": [
