@@ -20,6 +20,7 @@ from operator import itemgetter
 import imgkit
 import cv2
 import numpy as np
+from PIL import Image
 
 
 class RenderHelper:
@@ -73,8 +74,11 @@ class RenderHelper:
             redimg = cv2.rotate(redimg, self.rotateAngle)
             blackimg = cv2.rotate(blackimg, self.rotateAngle)
         #save channels for debugging
-        #cv2.imwrite(self.currPath + '/red-channel.png',redimg) 
-        #cv2.imwrite(self.currPath + '/black-channel.png',blackimg) 
+        cv2.imwrite(self.currPath + '/red-channel.png',redimg) 
+        cv2.imwrite(self.currPath + '/black-channel.png',blackimg) 
+
+        blackimg = Image.open(self.currPath + '/black-channel.png')
+        redimg = Image.open(self.currPath + '/red-channel.png')	
 
         self.logger.info('Image colours processed. Extracted grayscale and red images.')
         return blackimg, redimg
