@@ -102,6 +102,7 @@ class RunHelper:
             # Using Google Calendar to retrieve all events within start and end date (inclusive)
             start = dt.datetime.now()
             gcalService = GcalHelper()
+            #gcalService.list_calendars()
             eventList = gcalService.retrieve_events(self.calendars, calStartDatetime, calEndDatetime, self.displayTZ, self.thresholdHours)
             #eventList = []
             self.logger.info("Calendar events retrieved in " + str(dt.datetime.now() - start))
