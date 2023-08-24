@@ -78,8 +78,10 @@ def main():
 #    date = date + dt.timedelta(days=14)
     run.maginkcal(date, view, startToday)
     
-    if buttonPresent:
+    if not piSugar2Present:
         while True:
+            if dt.time.minute() == 0:
+                run.maginkcal(date, view, startToday)
             pass
 
 
