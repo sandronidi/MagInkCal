@@ -80,7 +80,8 @@ def main():
     
     if not piSugar2Present:
         while True:
-            if dt.time.minute() == 0:
+            time = dt.datetime.now(displayTZ)
+            if time.minute == 0:
                 run.maginkcal(date, view, startToday)
             pass
 
