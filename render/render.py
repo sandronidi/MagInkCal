@@ -66,7 +66,7 @@ class RenderHelper:
 
         # set my output img to zero everywhere except my mask
         redimg = img.copy()
-        redimg[np.where(mask==0)] = 0
+        redimg[np.where(mask==0)] = 255
 
         blackimg = img[:,:,2]
 
