@@ -82,6 +82,7 @@ def main():
         while True:
             time = dt.datetime.now(displayTZ)
             if time.minute == 0:
+                date = dt.datetime.now(displayTZ).date()
                 run.maginkcal(date, view, startToday)
             pass
 
