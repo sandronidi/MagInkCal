@@ -31,6 +31,7 @@ class GcalHelper:
         # time.
         if os.path.exists(self.currPath + '/token.json'):
             creds = Credentials.from_authorized_user_file(self.currPath + '/token.json', SCOPES)
+            creds.enable_reauth_refresh = True
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
@@ -38,10 +39,17 @@ class GcalHelper:
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.currPath + '/credentials.json', SCOPES)
+                
+                authorization_url, state = flow.authorization_url(
+                    access_type='offline',
+                    include_granted_scopes='true')
+                
                 creds = flow.run_local_server(port=0)
             # Save the credentials for the next run
             with open(self.currPath + '/token.json', 'w') as token:
                 token.write(creds.to_json())
+        else:
+            creds.refresh(Request())
 
 
         self.service = build('calendar', 'v3', credentials=creds, cache_discovery=False)
